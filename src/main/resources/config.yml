@@ -1,0 +1,9 @@
+# 存储方式配置
+Storage:
+  # MySQL配置
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "yushop"
+    username: "root"
+    password: "password"
