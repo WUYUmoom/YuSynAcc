@@ -14,6 +14,10 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
+        name = "AliyunMaven"
+        url = uri("https://maven.aliyun.com/repository/public")
+    }
+    maven {
         url = uri("https://nexus.wuyumoom.top:2026/repository/maven-public/")
     }
     maven {
