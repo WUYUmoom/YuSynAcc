@@ -79,3 +79,4 @@ tasks.named<ProcessResources>("processResources") {
 tasks.named<Test>("test") { useJUnitPlatform() }
 
 kotlin { jvmToolchain(21) }
+kotlin { jvmToolchain(21) }
