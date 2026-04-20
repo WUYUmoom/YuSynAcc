@@ -25,6 +25,7 @@ class YuSynAcc : JavaPlugin() {
     override fun onEnable() {
       INSTANCE = this
       saveDefaultConfig()
+      Bukkit.getConsoleSender().sendMessage("测试")
       Bukkit.getConsoleSender().sendMessage(*LOGO)
     }
 
