@@ -6,12 +6,8 @@ import org.bukkit.event.player.PlayerQuitEvent
 
 object PluginEvent {
     // 进服事件
-    @EventHandler
-    fun onPlayerJoin(event: PlayerJoinEvent) {
-    }
+    @EventHandler fun onPlayerJoin(event: PlayerJoinEvent) {}
 
     // 退出服务器事件
-    @EventHandler
-    fun onPlayerQuit(event: PlayerQuitEvent) {
-    }
+    @EventHandler fun onPlayerQuit(event: PlayerQuitEvent) {}
 }

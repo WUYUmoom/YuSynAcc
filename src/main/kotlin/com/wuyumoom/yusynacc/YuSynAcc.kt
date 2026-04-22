@@ -1,8 +1,10 @@
 package com.wuyumoom.yusynacc
 
+import io.wispforest.accessories.api.events.AccessoryChangeCallback
 import java.io.File
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
+import net.minecraft.server.level.ServerPlayer
 
 class YuSynAcc : JavaPlugin() {
     companion object {
@@ -26,8 +28,8 @@ class YuSynAcc : JavaPlugin() {
     override fun onEnable() {
         INSTANCE = this
         saveDefaultConfig()
-        
         Bukkit.getConsoleSender().sendMessage(*LOGO)
+        
     }
 
     override fun onDisable() {}

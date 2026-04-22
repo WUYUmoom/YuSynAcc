@@ -13,6 +13,9 @@ loom { splitEnvironmentSourceSets() }
 repositories {
     mavenLocal()
     mavenCentral()
+    maven { url = uri("https://maven.shedaniel.me/") }
+    maven { url = uri("https://maven.wispforest.io/releases") }
+    maven { url = uri("https://maven.su5ed.dev/releases") }
     maven {
         name = "AliyunMaven"
         url = uri("https://maven.aliyun.com/repository/public")
@@ -62,8 +65,8 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     // PlayerPoints API
     compileOnly("org.black_ixx:playerpoints:3.2.5")
-    compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    implementation("io.wispforest:accessories-fabric:1.1.0-beta.7+1.21.1")
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -78,5 +81,4 @@ tasks.named<ProcessResources>("processResources") {
 
 tasks.named<Test>("test") { useJUnitPlatform() }
 
-kotlin { jvmToolchain(21) }
 kotlin { jvmToolchain(21) }
