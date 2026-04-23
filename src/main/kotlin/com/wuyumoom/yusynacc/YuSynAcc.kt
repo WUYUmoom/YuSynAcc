@@ -67,8 +67,6 @@ class YuSynAcc : JavaPlugin() {
                     DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
                 }
                 SlotStateChange.MUTATION -> {
-                    // 同物品但 NBT/数量变化
-                    println("饰品属性变更: ${stack.displayName.string}")
                     val slot = Slot(reference.slotName(), reference.slot())
                     playerdata.map[slot] = nbt.toString()
                     DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
