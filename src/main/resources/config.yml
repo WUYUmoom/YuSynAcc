@@ -4,6 +4,7 @@ Storage:
   mysql:
     host: "localhost"
     port: 3306
-    database: "yushop"
+    database: "yusynacc"
     username: "root"
     password: "password"
+

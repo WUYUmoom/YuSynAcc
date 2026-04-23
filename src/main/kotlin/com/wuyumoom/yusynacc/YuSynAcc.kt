@@ -50,28 +50,22 @@ class YuSynAcc : JavaPlugin() {
     }
 
     private fun iniEvent() {
-        AccessoryChangeCallback.EVENT.register { stack, otherStack, reference, stateChange ->
+        AccessoryChangeCallback.EVENT.register { prevStack, currentStack, reference, stateChange->
             val entity = reference.entity()
             if (entity !is ServerPlayer) return@register
-            var playerdata = PlayerData.getPlayer(entity.name.string)
-            val nbt = stack.save(entity.registryAccess())
-            when (stateChange) {
-                SlotStateChange.REPLACEMENT -> {
-
-                    val slot = Slot(reference.slotName(), reference.slot())
-                    if (stack.isEmpty) {
-                        playerdata.map.remove(slot)
-                    } else {
-                        playerdata.map[slot] = nbt.toString()
-                    }
-                    DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
-                }
-                SlotStateChange.MUTATION -> {
-                    val slot = Slot(reference.slotName(), reference.slot())
-                    playerdata.map[slot] = nbt.toString()
-                    DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
-                }
+            // 【关键修复1】只处理 REPLACEMENT 类型，避免频繁的 MUTATION 触发数据库保存
+            if (stateChange != SlotStateChange.REPLACEMENT) {
+                return@register
             }
+            var playerdata = PlayerData.getPlayer(entity.name.string)
+            val slot = Slot(reference.slotName(), reference.slot())
+            if (currentStack.isEmpty) {
+                playerdata.removeSlot(slot.name)
+            } else {
+                val nbt = currentStack.save(entity.registryAccess())
+                playerdata.map[slot] = nbt.toString()
+            }
+            DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
         }
     }
 
