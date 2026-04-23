@@ -3,6 +3,7 @@ package com.wuyumoom.yusynacc
 import com.wuyumoom.yusynacc.data.PlayerData
 import com.wuyumoom.yusynacc.data.Slot
 import com.wuyumoom.yusynacc.listener.PlayerJoin
+import com.wuyumoom.yusynacc.config.ConfigManager
 import io.wispforest.accessories.api.events.AccessoryChangeCallback
 import java.io.File
 import net.minecraft.server.dedicated.DedicatedPlayerList
@@ -34,6 +35,7 @@ class YuSynAcc : JavaPlugin() {
     override fun onEnable() {
         INSTANCE = this
         saveDefaultConfig()
+        ConfigManager.load()
         val craftServer: CraftServer = Bukkit.getServer() as CraftServer
         playerList = craftServer.server.playerList
         iniEvent()

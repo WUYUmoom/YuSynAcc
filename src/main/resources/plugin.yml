@@ -1,5 +1,6 @@
-name: YuShop
+name: YuSynAcc
 version: '${version}'
 main: com.wuyumoom.yusynacc.YuSynAcc
 api-version: '1.21'
-depend: [ YuCore ]
+depend: [YuCore]
+
