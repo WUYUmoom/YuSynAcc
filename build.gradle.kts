@@ -98,15 +98,22 @@ tasks.register<Exec>("deployToServer") {
     }
     
     val serverHost = "wuyumoom@202.189.4.208"
-    val remotePath = "/mnt/1区/plugins/"
+    val remotePath1 = "/mnt/1区/plugins/"
+    val remotePath2 = "/mnt/2区/plugins/"
     
-    // 方案 1: 移除引号,使用列表形式传递参数
-    commandLine("scp", jarFile.absolutePath, "$serverHost:$remotePath")
+    // 使用 bash 脚本执行多个 scp 命令
+    commandLine(
+        "bash", "-c",
+        "scp '${jarFile.absolutePath}' '$serverHost:$remotePath1' && " +
+        "scp '${jarFile.absolutePath}' '$serverHost:$remotePath2'"
+    )
     
     doFirst {
         println("准备上传: ${jarFile.name}")
         println("目标服务器: $serverHost")
-        println("目标路径: $remotePath")
+        println("目标路径 1: $remotePath1")
+        println("目标路径 2: $remotePath2")
+
     }
     
     doLast {

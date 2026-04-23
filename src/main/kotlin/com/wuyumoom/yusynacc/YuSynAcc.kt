@@ -6,7 +6,6 @@ import com.wuyumoom.yusynacc.data.Slot
 import com.wuyumoom.yusynacc.database.DatabaseManager
 import com.wuyumoom.yusynacc.listener.PlayerJoin
 import io.wispforest.accessories.api.events.AccessoryChangeCallback
-import io.wispforest.accessories.api.events.SlotStateChange
 import java.io.File
 import net.minecraft.server.dedicated.DedicatedPlayerList
 import net.minecraft.server.level.ServerPlayer
@@ -50,22 +49,50 @@ class YuSynAcc : JavaPlugin() {
     }
 
     private fun iniEvent() {
-        AccessoryChangeCallback.EVENT.register { prevStack, currentStack, reference, stateChange->
+        AccessoryChangeCallback.EVENT.register { stack, otherStack, reference, stateChange ->
             val entity = reference.entity()
             if (entity !is ServerPlayer) return@register
-            // 【关键修复1】只处理 REPLACEMENT 类型，避免频繁的 MUTATION 触发数据库保存
-            if (stateChange != SlotStateChange.REPLACEMENT) {
+
+            val playerName = entity.name.string
+
+            // 如果玩家正在同步，跳过回调（避免初始化清空触发保存）
+            if (PlayerData.isSyncing(playerName)) {
+                Bukkit.getConsoleSender().sendMessage("玩家数据正在服务器数据库加载中~")
                 return@register
             }
-            var playerdata = PlayerData.getPlayer(entity.name.string)
+
+            var playerdata = PlayerData.getPlayer(playerName)
             val slot = Slot(reference.slotName(), reference.slot())
-            if (currentStack.isEmpty) {
-                playerdata.removeSlot(slot.name)
-            } else {
-                val nbt = currentStack.save(entity.registryAccess())
-                playerdata.map[slot] = nbt.toString()
+
+            when {
+                otherStack.isEmpty && !stack.isEmpty -> {
+                    val nbt = stack.save(entity.registryAccess())
+                    playerdata.map[slot] = nbt.toString()
+                    server.logger.info("§e玩家 §b$playerName §e佩戴饰品: §a${slot.name}")
+                }
+                !otherStack.isEmpty && stack.isEmpty -> {
+                    playerdata.map.remove(slot)
+                    server.logger.info("§e玩家 §b$playerName §e取下饰品: §7${slot.name}")
+                }
+                !otherStack.isEmpty && !stack.isEmpty -> {
+                    val nbt = stack.save(entity.registryAccess())
+                    playerdata.map[slot] = nbt.toString()
+                    server.logger.info(
+                            "§e玩家 §b$playerName §e替换饰品: §7${otherStack.displayName.string} §e-> §a${stack.displayName.string}"
+                    )
+                }
+                else -> {
+                    server.logger.warning("§c玩家 §e$playerName §c饰品状态异常")
+                    return@register
+                }
             }
-            DatabaseManager.savePlayerData(entity.name.toString(), playerdata)
+
+            val success = DatabaseManager.savePlayerData(playerName, playerdata)
+            if (success) {
+                server.logger.info("§a数据保存成功: §b$playerName §a当前槽位数: §e${playerdata.map.size}")
+            } else {
+                server.logger.warning("§c数据保存失败: §e$playerName")
+            }
         }
     }
 
