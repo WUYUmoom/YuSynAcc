@@ -80,7 +80,41 @@ tasks.named<ProcessResources>("processResources") {
     }
 }
 
-tasks.named<Test>("test") { useJUnitPlatform() }
+tasks.register<Exec>("deployToServer") {
+    group = "deployment"
+    description = "上传插件到远程服务器"
+    
+    dependsOn("remapJar")
+    
+    val jarFile = project.layout.buildDirectory.dir("libs").get().asFile.listFiles { file ->
+        file.name.startsWith("YuSynAcc") && 
+        file.name.endsWith(".jar") && 
+        !file.name.contains("sources") && 
+        !file.name.contains("shadow")
+    }?.maxByOrNull { it.lastModified() }
+    
+    if (jarFile == null) {
+        throw GradleException("未找到构建产物 JAR 文件")
+    }
+    
+    val serverHost = "wuyumoom@202.189.4.208"
+    val remotePath = "/mnt/1区/plugins/"
+    
+    // 方案 1: 移除引号,使用列表形式传递参数
+    commandLine("scp", jarFile.absolutePath, "$serverHost:$remotePath")
+    
+    doFirst {
+        println("准备上传: ${jarFile.name}")
+        println("目标服务器: $serverHost")
+        println("目标路径: $remotePath")
+    }
+    
+    doLast {
+        println("上传完成!")
+    }
+}
+tasks.named("build") {
+    finalizedBy("deployToServer")
+}
 
-kotlin { jvmToolchain(21) }
-kotlin { jvmToolchain(21) }
+kotlin {jvmToolchain(21)}
