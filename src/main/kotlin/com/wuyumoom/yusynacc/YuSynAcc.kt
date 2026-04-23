@@ -1,16 +1,21 @@
 package com.wuyumoom.yusynacc
 
+import com.wuyumoom.yusynacc.data.PlayerData
+import com.wuyumoom.yusynacc.data.Slot
+import com.wuyumoom.yusynacc.listener.PlayerJoin
 import io.wispforest.accessories.api.events.AccessoryChangeCallback
 import java.io.File
+import net.minecraft.server.dedicated.DedicatedPlayerList
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.Bukkit
+import org.bukkit.craftbukkit.v1_21_R1.CraftServer
 import org.bukkit.plugin.java.JavaPlugin
-import com.wuyumoom.yusynacc.listener.PlayerJoin
+
 class YuSynAcc : JavaPlugin() {
     companion object {
-        var map: MutableMap<String, MutableMap<String, String>> = mutableMapOf()
         lateinit var pluginFile: File
         lateinit var INSTANCE: YuSynAcc
+        lateinit var playerList: DedicatedPlayerList
         val LOGO =
                 arrayOf(
                         "===============================================================================",
@@ -29,6 +34,8 @@ class YuSynAcc : JavaPlugin() {
     override fun onEnable() {
         INSTANCE = this
         saveDefaultConfig()
+        val craftServer: CraftServer = Bukkit.getServer() as CraftServer
+        playerList = craftServer.server.playerList
         iniEvent()
         Bukkit.getPluginManager().registerEvents(PlayerJoin(), INSTANCE)
         Bukkit.getConsoleSender().sendMessage(*LOGO)
@@ -38,19 +45,22 @@ class YuSynAcc : JavaPlugin() {
         AccessoryChangeCallback.EVENT.register { stack, otherStack, reference, stateChange ->
             val entity = reference.entity()
             if (entity !is ServerPlayer) return@register
-            var playerdata = map.getOrDefault(entity.name.string, mutableMapOf())
+            var playerdata = PlayerData.getPlayer(entity.name.string)
             val nbt = stack.save(entity.registryAccess())
             when {
                 // 情况 A：之前是空的，现在有物品了 -> 戴上 (Equip)
                 otherStack.isEmpty && !stack.isEmpty -> {
                     println("玩家戴上了: ${stack.displayName.string}")
-                    playerdata[reference.slotName()] = nbt.toString()
+                    val slot = Slot(reference.slotName(), reference.slot())
+                    playerdata.map[slot] = nbt.toString()
                     return@register
                 }
 
                 // 情况 B：之前有物品，现在空了 -> 取下 (Unequip)
                 !otherStack.isEmpty && stack.isEmpty -> {
                     println("玩家取下了: ${otherStack.displayName.string}")
+                    val slot = Slot(reference.slotName(), reference.slot())
+                    playerdata.map[slot] = nbt.toString()
                     return@register
                 }
 
@@ -60,6 +70,8 @@ class YuSynAcc : JavaPlugin() {
                     println(
                             "玩家替换了: ${otherStack.displayName.string} -> ${stack.displayName.string}"
                     )
+                    val slot = Slot(reference.slotName(), reference.slot())
+                    playerdata.map[slot] = nbt.toString()
                     return@register
                 }
 
