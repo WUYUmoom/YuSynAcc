@@ -67,6 +67,7 @@ dependencies {
     compileOnly("org.black_ixx:playerpoints:3.2.5")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     modCompileOnly("io.wispforest:accessories-fabric:1.1.0-beta.7+1.21.1")
+    compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -81,4 +82,5 @@ tasks.named<ProcessResources>("processResources") {
 
 tasks.named<Test>("test") { useJUnitPlatform() }
 
+kotlin { jvmToolchain(21) }
 kotlin { jvmToolchain(21) }
