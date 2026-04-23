@@ -1,9 +1,10 @@
 package com.wuyumoom.yusynacc
 
+import com.wuyumoom.yusynacc.config.ConfigManager
 import com.wuyumoom.yusynacc.data.PlayerData
 import com.wuyumoom.yusynacc.data.Slot
+import com.wuyumoom.yusynacc.database.DatabaseManager
 import com.wuyumoom.yusynacc.listener.PlayerJoin
-import com.wuyumoom.yusynacc.config.ConfigManager
 import io.wispforest.accessories.api.events.AccessoryChangeCallback
 import java.io.File
 import net.minecraft.server.dedicated.DedicatedPlayerList
@@ -38,6 +39,10 @@ class YuSynAcc : JavaPlugin() {
         ConfigManager.load()
         val craftServer: CraftServer = Bukkit.getServer() as CraftServer
         playerList = craftServer.server.playerList
+        DatabaseManager.connect()
+        if (DatabaseManager.isConnected()) {
+            server.logger.info("§a数据库连接成功")
+        }
         iniEvent()
         Bukkit.getPluginManager().registerEvents(PlayerJoin(), INSTANCE)
         Bukkit.getConsoleSender().sendMessage(*LOGO)
@@ -55,6 +60,7 @@ class YuSynAcc : JavaPlugin() {
                     println("玩家戴上了: ${stack.displayName.string}")
                     val slot = Slot(reference.slotName(), reference.slot())
                     playerdata.map[slot] = nbt.toString()
+                    DatabaseManager.savePlayerData(entity.name.toString(),playerdata)
                     return@register
                 }
 
@@ -63,6 +69,7 @@ class YuSynAcc : JavaPlugin() {
                     println("玩家取下了: ${otherStack.displayName.string}")
                     val slot = Slot(reference.slotName(), reference.slot())
                     playerdata.map[slot] = nbt.toString()
+                    DatabaseManager.savePlayerData(entity.name.toString(),playerdata)
                     return@register
                 }
 
@@ -74,13 +81,14 @@ class YuSynAcc : JavaPlugin() {
                     )
                     val slot = Slot(reference.slotName(), reference.slot())
                     playerdata.map[slot] = nbt.toString()
+                    DatabaseManager.savePlayerData(entity.name.toString(),playerdata)
                     return@register
                 }
 
                 // 情况 D：物品没变，但 NBT 或数量变了 -> 变更 (Mutation)
                 // 对应枚举中的 MUTATION
                 else -> {
-                    // println("饰品发生了变动 (NBT 或数量)")
+                    Bukkit.getConsoleSender().sendMessage("玩家佩戴饰品错误")
                 }
             }
         }

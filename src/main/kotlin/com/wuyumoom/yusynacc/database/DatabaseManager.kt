@@ -9,7 +9,7 @@ import java.sql.DriverManager
 import java.sql.SQLException
 import kotlin.collections.iterator
 
-object DataseManager {
+object DatabaseManager {
     private val databaseName: String
         get() = ConfigManager.mysql_database
     private val urlOriginal: String
