@@ -63,7 +63,7 @@ class PlayerJoin : Listener {
             }
         } finally {
             // 同步完成后，允许回调触发保存
-            PlayerData.markSynced(player.name.toString())
+            PlayerData.markSynced(player.name.string)
         }
     }
 }
